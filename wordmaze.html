@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Word Maze Task</title>
+
+    <script src="jspsych/jspsych.js"></script>
+    <script src="jspsych/plugin-html-button-response.js"></script>
+    <script src="jspsych/plugin-html-keyboard-response.js"></script>
+    <link href="jspsych/jspsych.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body>
+    This is a word maze task. Choose the correct option to make a meaningful sentence.
+  </body>
+
+  <script>
+    const jsPsych = initJsPsych({
+      override_safe_mode: true,
+      on_finish: function () {
+        jsPsych.data.displayData('csv');
+      }
+    });
+
+    // Word + Distractor 
+    const sentence = [ 
+      {
+        sentence_id: "amb1",
+        condition:"ambiguous",
+        word: [  
+      
+      { word: "Put", distractor: "xxx" },
+      { word: "the", distractor: "came" },
+      { word: "frog", distractor: "their"},
+      { word: "on", distractor: "slow"},
+      { word: "the", distractor: "went"},
+      { word: "napkin",distractor: "with"},
+      { word: "onto", distractor: "done"},
+      { word: "the", distractor: "she"},
+      { word: "box.", distractor: "gone."}
+      ]
+       },
+       {
+        sentence_id: "unamb1",
+        condition: "unambiguous",
+        word: [
+          {word: "Put", distractor: "xxx"},
+          {word: "the", distractor: "came"},
+          {word: "frog", distractor: "their"},
+          {word: "that", distractor: "look"},
+          {word: "is", distractor: "ours"},
+          {word: "on", distractor: "go"},
+          {word: "the", distractor: "flew"},
+          {word: "napkin", distractor: "with"},
+          {word: "onto", distractor: "done"},
+          {word: "the", distractor: "she"},
+          {word: "box.", distractor: "gone."}
+        ]
+       }
+    ];
+
+    const fixation = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<p style="font-size: 48px;">+</p>',
+      choices: "NO_KEYS",
+      trial_duration: 500
+    };
+
+    // For each trial, display two words with randomized left/right positioning
+    const wordMazeTrial = (word, distractor, sentence_id, condition) => {
+      const isTargetOnLeft = Math.random() < 0.5;
+
+      const leftWord = isTargetOnLeft ? word : distractor;
+      const rightWord = isTargetOnLeft ? distractor : word;
+
+      return {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '',  // empty because we only focus on buttons
+        choices: [
+          `<div style="font-size:28px; width:200px;">${leftWord}</div>`,
+          `<div style="font-size:28px; width:200px;">${rightWord}</div>`
+        ],
+        data: {
+          word: word,
+          distractor: distractor,
+          correct_response: isTargetOnLeft ? 0 : 1
+        },
+        on_finish: function (data) {
+          data.correct = data.response === data.correct_response;
+        }
+      };
+    };
+
+    // Generate all trials in sequence
+    const wordmaze_trials = [];
+    sentence.forEach(sentence => {wordmaze_trials.push(fixation);
+      sentence.word.forEach(pair => {
+        wordmaze_trials.push(
+          wordMazeTrial(pair.word, pair.distractor, sentence.sentence_id, sentence.condition)
+        );
+      });
+    });
+
+    jsPsych.run(wordmaze_trials);
+  </script>
+</html>
