@@ -13,10 +13,13 @@ Developed for a bilingualism and cognitive control experiment.
 ## Usage Example
 
 ```javascript
-const sentence = [
-  { word: "Put", distractor: "xxx" },
-  { word: "the", distractor: "yyy" },
-  { word: "cake", distractor: "zzz" }
-];
+    const sentences = [ 
+      {
+        sentence_id: "amb1",
+        condition:"ambiguous",
+        target: "Put the frog on the napkin onto the box.",
+        distractor: "xxx run some hope above his year until any." 
+      },
 
 // Custom script handles left/right positioning and timing
+
