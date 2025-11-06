@@ -92,6 +92,42 @@
       choices: "NO_KEYS",
       trial_duration: 500
     };
+        const feedback = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: function () {
+        const previous = jsPsych.data.get().last(1).values()[0]; //get the data of previous trial
+        if (previous && previous.correct === false) {  //if the previous trial is incorrect, print "incorrect"
+          return '<p style="color:red;font-size:24px;">Incorrect! Try again.</p>';
+        } else { // if the previous trial correct, do not print anything
+          return '';
+        }
+      },
+
+      choices: "NO_KEYS",
+      trial_duration: function () { // if the previous trial is incorrect the feedback will be shown for 900ms, otherwise 0ms
+        const previous = jsPsych.data.get().last(1).values()[0];
+        if (previous && previous.correct === false) {
+          return 900;
+        }
+        else {
+          return 0;
+        }
+      }
+    };
+    function repeatTillCorrect(choiceTrial) {
+      return {
+        timeline: [choiceTrial, feedback],
+        loop_function: function () {
+          const lastTwoTrial = jsPsych.data.get().filter({task: 'wm_choice'}).last(1).values(); // checking last wm trial, wm trials were flagged as wm_choice which are html button responses
+          if (last && last.correct === false) {
+            return true;
+          }
+          else {
+            return false;
+          }
+        }
+      };
+    }
 
     // For each trial, display two words with randomized left/right positioning
     const wordMazeTrials = (sentence) => {
@@ -117,6 +153,7 @@
           `<div style="font-size:28px; width:200px;">${rightWord}</div>`
         ],
         data: {
+          task: 'wm_choice',
           word: word,
           distractor: distractor,
           correct_response: isTargetOnLeft ? 0 : 1,
@@ -144,3 +181,4 @@
     jsPsych.run(timeline);
   </script>
 </html>
+
